@@ -73,6 +73,34 @@ services:
       west-lan:
         ipv4_address: 10.2.0.10
 
+  nginx-east:
+    image: nginx:alpine
+    container_name: nginx-east
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - gateway-east
+    volumes:
+      - ./nginx/east/index.html:/usr/share/nginx/html/index.html:ro
+    command: sh -c "ip route del default && ip route add default via 10.1.0.2 && nginx -g 'daemon off;'"
+    networks:
+      east-lan:
+        ipv4_address: 10.1.0.20
+
+  nginx-west:
+    image: nginx:alpine
+    container_name: nginx-west
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - gateway-west
+    volumes:
+      - ./nginx/west/index.html:/usr/share/nginx/html/index.html:ro
+    command: sh -c "ip route del default && ip route add default via 10.2.0.2 && nginx -g 'daemon off;'"
+    networks:
+      west-lan:
+        ipv4_address: 10.2.0.20
+
   carol:
     image: 4757/pq-strongswan:latest
     container_name: carol
