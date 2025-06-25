@@ -4,6 +4,7 @@ services:
   gateway-east:
     image: 4757/pq-strongswan:latest
     container_name: gateway-east
+    hostname: synergy-east
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -28,6 +29,7 @@ services:
   gateway-west:
     image: 4757/pq-strongswan:latest
     container_name: gateway-west
+    hostname: synergy-west
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -52,6 +54,7 @@ services:
   client-east:
     image: alpine:latest
     container_name: client-east
+    hostname: client-east
     depends_on:
       - gateway-east
     cap_add:
@@ -64,6 +67,7 @@ services:
   client-west:
     image: alpine:latest
     container_name: client-west
+    hostname: client-west
     depends_on:
       - gateway-west
     cap_add:
@@ -76,6 +80,7 @@ services:
   nginx-east:
     image: nginx:alpine
     container_name: nginx-east
+    hostname: nginx-east
     cap_add:
       - NET_ADMIN
     depends_on:
@@ -90,6 +95,7 @@ services:
   nginx-west:
     image: nginx:alpine
     container_name: nginx-west
+    hostname: nginx-west
     cap_add:
       - NET_ADMIN
     depends_on:
@@ -104,6 +110,7 @@ services:
   carol:
     image: 4757/pq-strongswan:latest
     container_name: carol
+    hostname: carol
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -112,7 +119,7 @@ services:
     volumes:
       - ./rw/carol:/etc/swanctl/
       - ./strongswan.conf:/etc/strongswan.conf
-    command: "./charon"
+    command: sh -c "ip route del default && ip route add default via 10.1.0.2 && ./charon"
     networks:
       east-lan:
         ipv4_address: 10.1.0.100
@@ -120,6 +127,7 @@ services:
   bob:
     image: 4757/pq-strongswan:latest
     container_name: bob
+    hostname: bob
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -128,7 +136,7 @@ services:
     volumes:
       - ./rw/bob:/etc/swanctl/
       - ./strongswan.conf:/etc/strongswan.conf
-    command: "./charon"
+    command: sh -c "ip route del default && ip route add default via 10.2.0.2 && ./charon"
     networks:
       west-lan:
         ipv4_address: 10.2.0.100
